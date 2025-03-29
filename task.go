@@ -803,7 +803,7 @@ func (task *Task) Update() {
 			task.Rect.Y = task.Position.Y
 		}
 
-		if MouseReleased(rl.MouseLeftButton) {
+		if MouseReleased(int32(rl.MouseLeftButton)) {
 			task.Dragging = false
 			// And we have to send the "dropped" message to trigger the undo (the task reordering does not trigger the undo system)
 			task.ReceiveMessage(MessageDropped, nil)
@@ -912,7 +912,7 @@ func (task *Task) Draw() {
 
 		if task.Selected && task.Board.Project.PulsingTaskSelection.Checked { // Drawing selection indicator
 			r := task.Rect
-			t := float32(math.Sin(float64(rl.GetTime()-(float32(task.ID)*0.1))*math.Pi*4))/2 + 0.5
+			t := float32(math.Sin(float64(float32(rl.GetTime())-(float32(task.ID)*0.1))*math.Pi*4))/2 + 0.5
 			f := t * 4
 
 			margin := float32(2)
@@ -1260,7 +1260,7 @@ func (task *Task) ReceiveMessage(message string, data map[string]interface{}) {
 			// We have to consume after double-clicking so you don't click outside of the new panel and exit it immediately
 			// or actuate a GUI element accidentally. HOWEVER, we want it here because double-clicking might not actually
 			// open the Task, as can be seen here
-			ConsumeMouseInput(rl.MouseLeftButton)
+			ConsumeMouseInput(int32(rl.MouseLeftButton))
 
 			task.Open = true
 			// We call SetPanel() here specifically because there's no need to set the panel before opening, but also because
@@ -1648,7 +1648,7 @@ func (task *Task) SmallButton(srcX, srcY, srcW, srcH, dstX, dstY float32) bool {
 
 	mouseOver := rl.CheckCollisionPointRec(GetWorldMousePosition(), dstRect)
 
-	if task.Selected && mouseOver && !MousePressed(rl.MouseLeftButton) {
+	if task.Selected && mouseOver && !MousePressed(int32(rl.MouseLeftButton)) {
 		color = getThemeColor(GUI_INSIDE_DISABLED)
 	}
 
@@ -1660,7 +1660,7 @@ func (task *Task) SmallButton(srcX, srcY, srcW, srcH, dstX, dstY float32) bool {
 		0,
 		color)
 
-	return task.Selected && mouseOver && MousePressed(rl.MouseLeftButton)
+	return task.Selected && mouseOver && MousePressed(int32(rl.MouseLeftButton))
 
 }
 

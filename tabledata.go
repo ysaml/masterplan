@@ -80,9 +80,7 @@ func (tb *TableData) Copy(other *TableData) {
 
 	for y := range other.Completions {
 		tb.Completions = append(tb.Completions, []int{})
-		for x := range other.Completions[y] {
-			tb.Completions[y] = append(tb.Completions[y], other.Completions[y][x])
-		}
+		tb.Completions[y] = append(tb.Completions[y], other.Completions[y]...)
 	}
 
 }

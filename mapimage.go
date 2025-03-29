@@ -155,14 +155,16 @@ func (mapImage *MapImage) Draw() {
 				c.B += f
 				rl.DrawRectangleLinesEx(r, 2, c)
 
-				if MouseDown(rl.MouseLeftButton) || MousePressed(rl.MouseLeftButton) {
+				if MouseDown(int32(rl.MouseLeftButton)) || MousePressed(int32(rl.MouseLeftButton)) {
 					mapImage.Data[cy][cx] = 1
 					mapImage.Changed = true
-				} else if MouseDown(rl.MouseRightButton) || MouseReleased(rl.MouseRightButton) {
+					ConsumeMouseInput(int32(rl.MouseLeftButton)) // Consume left mouse button input
+				} else if MouseDown(int32(rl.MouseRightButton)) || MouseReleased(int32(rl.MouseRightButton)) {
 					// This if statement has to have MouseReleased too because right click opens the menu
 					// And by ensuring this runs on release of right click, we can consume the input below
 					mapImage.Data[cy][cx] = 0
 					mapImage.Changed = true
+					ConsumeMouseInput(int32(rl.MouseRightButton)) // Consume right mouse button input
 				}
 
 			}
@@ -171,7 +173,7 @@ func (mapImage *MapImage) Draw() {
 
 			if cx >= 0 && cx <= mapImage.cellWidth-1 && cy >= 0 && cy <= mapImage.cellHeight-1 {
 
-				if MousePressed(rl.MouseLeftButton) || MousePressed(rl.MouseRightButton) {
+				if MousePressed(int32(rl.MouseLeftButton)) || MousePressed(int32(rl.MouseRightButton)) {
 					mapImage.RectangleStart = []int{cx, cy}
 					mapImage.Task.Dragging = false
 				}
@@ -217,7 +219,7 @@ func (mapImage *MapImage) Draw() {
 				c.B += f
 				rl.DrawRectangleLinesEx(rect, 2, c)
 
-				if MouseReleased(rl.MouseLeftButton) || MouseReleased(rl.MouseRightButton) {
+				if MouseReleased(int32(rl.MouseLeftButton)) || MouseReleased(int32(rl.MouseRightButton)) {
 
 					x, y, x2, y2 := 0, 0, 0, 0
 
@@ -244,9 +246,9 @@ func (mapImage *MapImage) Draw() {
 
 						for j := y; j <= y2; j++ {
 
-							if MouseReleased(rl.MouseLeftButton) {
+							if MouseReleased(int32(rl.MouseLeftButton)) {
 								mapImage.Data[j][i] = 1
-							} else if MouseReleased(rl.MouseRightButton) {
+							} else if MouseReleased(int32(rl.MouseRightButton)) {
 								mapImage.Data[j][i] = 0
 							}
 
@@ -266,8 +268,8 @@ func (mapImage *MapImage) Draw() {
 
 		if mapImage.Changed {
 			mapImage.Task.Dragging = false
-			if MouseReleased(rl.MouseRightButton) {
-				ConsumeMouseInput(rl.MouseRightButton)
+			if MouseReleased(int32(rl.MouseRightButton)) {
+				ConsumeMouseInput(int32(rl.MouseRightButton)) // Ensure right mouse button input is consumed
 			}
 		}
 
@@ -292,13 +294,13 @@ func (mapImage *MapImage) Draw() {
 
 		if pencilButton || programSettings.Keybindings.On(KBPencilTool) || (mapImage.EditTool == MapEditToolPencil && !mapImage.Task.Selected) {
 			mapImage.TogglePencil()
-			ConsumeMouseInput(rl.MouseLeftButton)
+			ConsumeMouseInput(int32(rl.MouseLeftButton))
 			mapImage.Changed = true
 		}
 
 		if rectButton || programSettings.Keybindings.On(KBMapRectTool) || (mapImage.EditTool == MapEditToolRectangle && !mapImage.Task.Selected) {
 			mapImage.ToggleRectangleTool()
-			ConsumeMouseInput(rl.MouseLeftButton)
+			ConsumeMouseInput(int32(rl.MouseLeftButton))
 			mapImage.Changed = true
 		}
 

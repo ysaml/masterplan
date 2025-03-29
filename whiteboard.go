@@ -58,11 +58,11 @@ func (whiteboard *Whiteboard) Draw() {
 
 		if cx >= 0 && cx <= whiteboard.Width-1 && cy >= 0 && cy <= whiteboard.Height-1 {
 
-			if MouseDown(rl.MouseLeftButton) {
+			if MouseDown(int32(rl.MouseLeftButton)) {
 				clickPos.X = float32(cx)
 				clickPos.Y = float32(cy)
 
-			} else if MouseDown(rl.MouseRightButton) || MouseReleased(rl.MouseRightButton) {
+			} else if MouseDown(int32(rl.MouseRightButton)) || MouseReleased(int32(rl.MouseRightButton)) {
 				// This if statement has to have MouseReleased too because right click opens the menu
 				// And by ensuring this runs on release of right click, we can consume the input below
 				clickPos.X = float32(cx)
@@ -72,7 +72,7 @@ func (whiteboard *Whiteboard) Draw() {
 
 		}
 
-		if MouseReleased(rl.MouseLeftButton) || MouseReleased(rl.MouseRightButton) {
+		if MouseReleased(int32(rl.MouseLeftButton)) || MouseReleased(int32(rl.MouseRightButton)) {
 			makeUndo = true
 		}
 
@@ -114,8 +114,8 @@ func (whiteboard *Whiteboard) Draw() {
 			rl.BeginMode2D(camera) // We have to call BeginMode2D again because BeginTextureMode modifies the OpenGL view matrix to render at a "GUI" level
 			// And we're not in the GUI, but drawing "into" the world here
 
-			if MouseReleased(rl.MouseRightButton) {
-				ConsumeMouseInput(rl.MouseRightButton)
+			if MouseReleased(int32(rl.MouseRightButton)) {
+				ConsumeMouseInput(int32(rl.MouseRightButton))
 			}
 
 		}
@@ -134,7 +134,7 @@ func (whiteboard *Whiteboard) Draw() {
 
 		if editButton || programSettings.Keybindings.On(KBPencilTool) || (whiteboard.Editing && !whiteboard.Task.Selected) {
 			whiteboard.ToggleEditing()
-			ConsumeMouseInput(rl.MouseLeftButton)
+			ConsumeMouseInput(int32(rl.MouseLeftButton))
 		}
 
 		cursorSrcX := []float32{
@@ -149,7 +149,7 @@ func (whiteboard *Whiteboard) Draw() {
 
 		if whiteboard.Editing && (programSettings.Keybindings.On(KBChangePencilToolSize) || whiteboard.Task.SmallButton(cursorSrcX[whiteboard.CursorSize], 48, 16, 16, whiteboard.Task.Rect.X+32, whiteboard.Task.Rect.Y)) {
 			whiteboard.CursorSize++
-			ConsumeMouseInput(rl.MouseLeftButton)
+			ConsumeMouseInput(int32(rl.MouseLeftButton))
 		}
 
 	} else {
@@ -276,9 +276,9 @@ func (whiteboard *Whiteboard) Serialize() []string {
 
 	data := []string{}
 
-	imgData := rl.GetTextureData(whiteboard.Texture.Texture)
+	imgData := rl.LoadImageFromTexture(whiteboard.Texture.Texture)
 	rl.ImageFlipVertical(imgData)
-	colors := rl.GetImageData(imgData)
+	colors := rl.LoadImageColors(imgData)
 
 	i := 0
 	for y := 0; y < int(whiteboard.Height); y++ {

@@ -1153,7 +1153,7 @@ func (project *Project) HandleCamera() {
 		camera.Zoom = targetZoom
 	}
 
-	if MouseDown(rl.MouseMiddleButton) {
+	if MouseDown(int32(rl.MouseMiddleButton)) {
 		diff := GetMouseDelta()
 		project.CameraPan.X += diff.X
 		project.CameraPan.Y += diff.Y
@@ -1267,7 +1267,7 @@ func (project *Project) Update() {
 
 		// We update the tasks from top (last) down, because if you click on one, you click on the top-most one.
 
-		if !project.ContextMenuOpen && !project.ProjectSettingsOpen && project.PopupAction == "" && MousePressed(rl.MouseLeftButton) {
+		if !project.ContextMenuOpen && !project.ProjectSettingsOpen && project.PopupAction == "" && MousePressed(int32(rl.MouseLeftButton)) {
 			clicked = true
 		}
 
@@ -1371,7 +1371,7 @@ func (project *Project) Update() {
 
 				selectionRect = rl.Rectangle{x1, y1, x2, y2}
 
-				if !project.ResizingImage && MouseReleased(rl.MouseLeftButton) {
+				if !project.ResizingImage && MouseReleased(int32(rl.MouseLeftButton)) {
 
 					project.Selecting = false // We're done with the selection process
 
@@ -1426,7 +1426,7 @@ func (project *Project) Update() {
 			}
 
 		} else {
-			if MouseReleased(rl.MouseLeftButton) {
+			if MouseReleased(int32(rl.MouseLeftButton)) {
 				project.Selecting = false
 			}
 		}
@@ -2118,7 +2118,7 @@ func (project *Project) GUI() {
 
 	} else {
 
-		if !project.TaskOpen && !project.ContextMenuOpen && !project.ProjectSettingsOpen && project.PopupAction == "" && MouseReleased(rl.MouseRightButton) {
+		if !project.TaskOpen && !project.ContextMenuOpen && !project.ProjectSettingsOpen && project.PopupAction == "" && MouseReleased(int32(rl.MouseRightButton)) {
 			programSettings.CleanUpRecentPlanList()
 			project.ContextMenuOpen = true
 			project.ContextMenuPosition = GetMousePosition()
@@ -2296,7 +2296,7 @@ func (project *Project) GUI() {
 
 			}
 
-			if (!closeMenu && !project.LoadRecentDropdown.Clicked && MouseReleased(rl.MouseLeftButton)) || MouseReleased(rl.MouseMiddleButton) || MouseReleased(rl.MouseRightButton) {
+			if (!closeMenu && !project.LoadRecentDropdown.Clicked && MouseReleased(int32(rl.MouseLeftButton))) || MouseReleased(int32(rl.MouseMiddleButton)) || MouseReleased(int32(rl.MouseRightButton)) {
 				closeMenu = true
 			}
 
@@ -2715,7 +2715,7 @@ func (project *Project) GUI() {
 			rotation *= -1
 			src.Width *= -1
 		}
-		rl.DrawTexturePro(project.GUI_Icons, src, dst, rl.Vector2{8, 8}, rotation, c)
+		rl.DrawTexturePro(project.GUI_Icons, src, dst, rl.Vector2{8, 8}, float32(rotation), c)
 
 		if finished {
 			project.Undoing = 0
@@ -2727,7 +2727,7 @@ func (project *Project) GUI() {
 	PrevMousePosition = GetMousePosition()
 
 	if programSettings.DrawWindowBorder {
-		rec := rl.Rectangle{0, 0, float32(rl.GetScreenWidth()), float32(rl.GetScreenHeight())}
+		rec := rl.Rectangle{X: 0, Y: 0, Width: float32(rl.GetScreenWidth()), Height: float32(rl.GetScreenHeight())}
 		rl.DrawRectangleLinesEx(rec, 2, getThemeColor(GUI_OUTLINE_HIGHLIGHTED))
 	}
 

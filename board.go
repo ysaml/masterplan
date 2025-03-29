@@ -278,9 +278,9 @@ func (board *Board) HandleDroppedFiles() {
 
 	if rl.IsFileDropped() {
 
-		fileCount := int32(0)
+		// fileCount is no longer needed as rl.LoadDroppedFiles does not return it
 
-		for _, droppedPath := range rl.GetDroppedFiles(&fileCount) {
+		for _, droppedPath := range rl.LoadDroppedFiles() {
 
 			board.Project.LogOn = false
 
@@ -334,7 +334,7 @@ func (board *Board) HandleDroppedFiles() {
 
 		board.Project.LogOn = true
 
-		rl.ClearDroppedFiles()
+		rl.UnloadDroppedFiles()
 
 	}
 

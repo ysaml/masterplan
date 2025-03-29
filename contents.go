@@ -72,7 +72,7 @@ func applyGlow(task *Task, color rl.Color) rl.Color {
 			glowVariance = 40
 		}
 
-		glow := int32(math.Sin(float64((rl.GetTime()*math.Pi*2-(float32(task.ID)*0.1))))*(glowVariance/2) + (glowVariance / 2))
+		glow := int32(math.Sin((float64(rl.GetTime())*math.Pi*2-float64(task.ID)*0.1))*(glowVariance/2) + (glowVariance / 2))
 
 		color = ColorAdd(color, -glow)
 	}
@@ -299,7 +299,7 @@ func (c *CheckboxContents) Draw() {
 
 		if c.Task.SmallButton(srcIcon.X, srcIcon.Y, 16, 16, c.Task.Rect.X, c.Task.Rect.Y) {
 			c.Trigger(TASK_TRIGGER_TOGGLE)
-			ConsumeMouseInput(rl.MouseLeftButton)
+			ConsumeMouseInput(int32(rl.MouseLeftButton))
 		}
 
 		cp.X += 16
@@ -474,14 +474,14 @@ func (c *ProgressionContents) Draw() {
 
 		if c.Task.SmallButton(112, 48, 16, 16, cp.X, cp.Y) {
 			c.Task.CompletionProgressionCurrent.SetNumber(c.Task.CompletionProgressionCurrent.Number() - 1)
-			ConsumeMouseInput(rl.MouseLeftButton)
+			ConsumeMouseInput(int32(rl.MouseLeftButton))
 			taskChanged = true
 		}
 		cp.X += 16
 
 		if c.Task.SmallButton(96, 48, 16, 16, cp.X, cp.Y) {
 			c.Task.CompletionProgressionCurrent.SetNumber(c.Task.CompletionProgressionCurrent.Number() + 1)
-			ConsumeMouseInput(rl.MouseLeftButton)
+			ConsumeMouseInput(int32(rl.MouseLeftButton))
 			taskChanged = true
 		}
 		cp.X += 16
@@ -687,7 +687,7 @@ func NewImageContents(task *Task) *ImageContents {
 
 func (c *ImageContents) Update() {
 
-	if c.resizing && MouseReleased(rl.MouseLeftButton) {
+	if c.resizing && MouseReleased(int32(rl.MouseLeftButton)) {
 		c.resizing = false
 		c.Task.UndoChange = true
 		c.Task.Board.TaskChanged = true // Have the board reorder if the size is different
@@ -893,7 +893,7 @@ func (c *ImageContents) Draw() {
 
 				corner := rl.Rectangle{pos.X + dst.Width - grabSize, pos.Y + dst.Height - grabSize, grabSize, grabSize}
 
-				if MousePressed(rl.MouseLeftButton) && rl.CheckCollisionPointRec(mp, corner) {
+				if MousePressed(int32(rl.MouseLeftButton)) && rl.CheckCollisionPointRec(mp, corner) {
 					c.resizing = true
 					c.Task.DisplaySize.X = c.Task.Position.X + c.Task.DisplaySize.X
 					c.Task.DisplaySize.Y = c.Task.Position.Y + c.Task.DisplaySize.Y
@@ -1293,7 +1293,7 @@ func (c *SoundContents) Draw() {
 				speaker.Lock()
 				c.SoundControl.Paused = !c.SoundControl.Paused
 				speaker.Unlock()
-				ConsumeMouseInput(rl.MouseLeftButton)
+				ConsumeMouseInput(int32(rl.MouseLeftButton))
 			}
 
 			cp.X += 16
@@ -1303,7 +1303,7 @@ func (c *SoundContents) Draw() {
 				speaker.Lock()
 				c.SoundStream.Seek(0)
 				speaker.Unlock()
-				ConsumeMouseInput(rl.MouseLeftButton)
+				ConsumeMouseInput(int32(rl.MouseLeftButton))
 			}
 
 			cp.X += 16
@@ -1664,14 +1664,14 @@ func (c *TimerContents) Draw() {
 
 	if c.Task.SmallButton(srcX, 16, 16, 16, cp.X, cp.Y) {
 		c.Trigger(TASK_TRIGGER_TOGGLE)
-		ConsumeMouseInput(rl.MouseLeftButton)
+		ConsumeMouseInput(int32(rl.MouseLeftButton))
 	}
 
 	cp.X += 16
 
 	if c.Task.SmallButton(48, 16, 16, 16, cp.X, cp.Y) {
 		c.CalculateTimeLeft()
-		ConsumeMouseInput(rl.MouseLeftButton)
+		ConsumeMouseInput(int32(rl.MouseLeftButton))
 		if c.Task.TimerMode.CurrentChoice == TIMER_TYPE_STOPWATCH {
 			c.TimerValue = 0
 		}
@@ -2015,7 +2015,7 @@ func NewMapContents(task *Task) *MapContents {
 
 func (c *MapContents) Update() {
 
-	if c.resizing && MouseReleased(rl.MouseLeftButton) {
+	if c.resizing && MouseReleased(int32(rl.MouseLeftButton)) {
 		c.resizing = false
 		c.Task.UndoChange = true
 		c.Task.Board.TaskChanged = true
@@ -2068,7 +2068,7 @@ func (c *MapContents) Draw() {
 
 			mp := GetWorldMousePosition()
 
-			if MousePressed(rl.MouseLeftButton) && rl.CheckCollisionPointRec(mp, corner) {
+			if MousePressed(int32(rl.MouseLeftButton)) && rl.CheckCollisionPointRec(mp, corner) {
 				c.resizing = true
 			}
 
@@ -2143,7 +2143,7 @@ func NewWhiteboardContents(task *Task) *WhiteboardContents {
 
 func (c *WhiteboardContents) Update() {
 
-	if c.resizing && MouseReleased(rl.MouseLeftButton) {
+	if c.resizing && MouseReleased(int32(rl.MouseLeftButton)) {
 		c.resizing = false
 		c.Task.UndoChange = true
 		c.Task.Board.TaskChanged = true
@@ -2163,11 +2163,11 @@ func (c *WhiteboardContents) Draw() {
 
 	drawTaskBG(c.Task, getThemeColor(GUI_INSIDE))
 
-	cp := rl.Vector2{c.Task.Rect.X, c.Task.Rect.Y}
+	cp := rl.Vector2{X: c.Task.Rect.X, Y: c.Task.Rect.Y}
 	project := c.Task.Board.Project
 
 	if project.ShowIcons.Checked {
-		rl.DrawTexturePro(project.GUI_Icons, rl.Rectangle{64, 16, 16, 16}, rl.Rectangle{cp.X + 8, cp.Y + 8, 16, 16}, rl.Vector2{8, 8}, 0, getThemeColor(GUI_FONT_COLOR))
+		rl.DrawTexturePro(project.GUI_Icons, rl.Rectangle{X: 64, Y: 16, Width: 16, Height: 16}, rl.Rectangle{X: cp.X + 8, Y: cp.Y + 8, Width: 16, Height: 16}, rl.Vector2{X: 8, Y: 8}, 0, getThemeColor(GUI_FONT_COLOR))
 	}
 
 	if c.Task.Whiteboard != nil {
@@ -2177,8 +2177,8 @@ func (c *WhiteboardContents) Draw() {
 		gs := float32(project.GridSize)
 
 		texture := c.Task.Whiteboard.Texture.Texture
-		src := rl.Rectangle{0, 0, float32(texture.Width), float32(texture.Height)}
-		dst := rl.Rectangle{c.Task.Rect.X + 1, c.Task.Rect.Y + 16 + 1, src.Width - 2, src.Height - 2}
+		src := rl.Rectangle{X: 0, Y: 0, Width: float32(texture.Width), Height: float32(texture.Height)}
+		dst := rl.Rectangle{X: c.Task.Rect.X + 1, Y: c.Task.Rect.Y + 16 + 1, Width: src.Width - 2, Height: src.Height - 2}
 		src.Height *= -1
 
 		rl.DrawTexturePro(texture, src, dst, rl.Vector2{}, 0, rl.White)
@@ -2189,9 +2189,9 @@ func (c *WhiteboardContents) Draw() {
 
 			grabSize := float32(8)
 
-			corner := rl.Rectangle{c.Task.Rect.X + c.Task.Rect.Width - grabSize, c.Task.Rect.Y + c.Task.Rect.Height - grabSize, grabSize, grabSize}
+			corner := rl.Rectangle{X: c.Task.Rect.X + c.Task.Rect.Width - grabSize, Y: c.Task.Rect.Y + c.Task.Rect.Height - grabSize, Width: grabSize, Height: grabSize}
 
-			if MousePressed(rl.MouseLeftButton) && rl.CheckCollisionPointRec(mp, corner) {
+			if MousePressed(int32(rl.MouseLeftButton)) && rl.CheckCollisionPointRec(mp, corner) {
 				c.resizing = true
 			}
 
@@ -2220,8 +2220,8 @@ func (c *WhiteboardContents) Draw() {
 	c.Task.Locked = c.Task.Whiteboard.Editing || c.resizing
 
 	// Shadow underneath the whiteboard header
-	src := rl.Rectangle{216, 16, 8, 8}
-	dst := rl.Rectangle{c.Task.Rect.X + 1, c.Task.Rect.Y + 16, c.Task.Rect.Width - 2, 8}
+	src := rl.Rectangle{X: 216, Y: 16, Width: 8, Height: 8}
+	dst := rl.Rectangle{X: c.Task.Rect.X + 1, Y: c.Task.Rect.Y + 16, Width: c.Task.Rect.Width - 2, Height: 8}
 	shadowColor := rl.Black
 	shadowColor.A = 128
 	rl.DrawTexturePro(project.GUI_Icons, src, dst, rl.Vector2{}, 0, shadowColor)
@@ -2493,23 +2493,23 @@ func (c *TableContents) Draw() {
 
 					if !c.Task.Board.Project.TaskOpen && !c.Task.Board.Project.ProjectSettingsOpen && c.Task.Board.Project.PopupAction == "" {
 
-						if MousePressed(rl.MouseLeftButton) {
+						if MousePressed(int32(rl.MouseLeftButton)) {
 
 							if value == 1 {
 								c.Task.TableData.Completions[y][x] = 0
 							} else {
 								c.Task.TableData.Completions[y][x] = 1
 							}
-							ConsumeMouseInput(rl.MouseLeftButton)
+							ConsumeMouseInput(int32(rl.MouseLeftButton))
 
-						} else if MousePressed(rl.MouseRightButton) {
+						} else if MousePressed(int32(rl.MouseRightButton)) {
 
 							if value == 2 {
 								c.Task.TableData.Completions[y][x] = 0
 							} else {
 								c.Task.TableData.Completions[y][x] = 2
 							}
-							ConsumeMouseInput(rl.MouseRightButton)
+							ConsumeMouseInput(int32(rl.MouseRightButton))
 
 						}
 

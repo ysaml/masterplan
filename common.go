@@ -97,9 +97,9 @@ var hiddenMouseInputs = map[int32]bool{}
 func handleMouseInputs() {
 
 	inputs := []int32{
-		rl.MouseLeftButton,
-		rl.MouseMiddleButton,
-		rl.MouseRightButton,
+		int32(rl.MouseLeftButton),
+		int32(rl.MouseMiddleButton),
+		int32(rl.MouseRightButton),
 	}
 
 	for _, button := range inputs {
@@ -109,17 +109,17 @@ func handleMouseInputs() {
 			v = 0
 		}
 
-		if rl.IsMouseButtonPressed(button) && v == 0 {
+		if rl.IsMouseButtonPressed(rl.MouseButton(button)) && v == 0 {
 			mouseInputs[button] = 1
 		}
 
-		if rl.IsMouseButtonDown(button) && v == 1 {
+		if rl.IsMouseButtonDown(rl.MouseButton(button)) && v == 1 {
 			mouseInputs[button] = 2
 		}
 
-		if rl.IsMouseButtonReleased(button) && v == 2 {
+		if rl.IsMouseButtonReleased(rl.MouseButton(button)) && v == 2 {
 			mouseInputs[button] = 3
-		} else if !rl.IsMouseButtonDown(button) {
+		} else if !rl.IsMouseButtonDown(rl.MouseButton(button)) {
 			mouseInputs[button] = 0
 		}
 
@@ -256,7 +256,7 @@ func ReloadFonts() {
 
 		x, y := img.Width, img.Height
 
-		imageData := rl.GetImageData(img)
+		imageData := rl.LoadImageColors(img)
 
 		for i := len(imageData) - 1; i > 0; i-- {
 

@@ -165,10 +165,10 @@ func imButton(rect rl.Rectangle, text string, style ButtonStyle) bool {
 		pos = GetMousePosition()
 	}
 
-	clicked = rl.CheckCollisionPointRec(pos, rect) && MousePressed(rl.MouseLeftButton)
+	clicked = rl.CheckCollisionPointRec(pos, rect) && MousePressed(int32(rl.MouseLeftButton))
 
 	if !clicked && style.RightClick {
-		clicked = rl.CheckCollisionPointRec(pos, rect) && MousePressed(rl.MouseRightButton)
+		clicked = rl.CheckCollisionPointRec(pos, rect) && MousePressed(int32(rl.MouseRightButton))
 	}
 
 	outlineColor := style.OutlineColor
@@ -177,7 +177,7 @@ func imButton(rect rl.Rectangle, text string, style ButtonStyle) bool {
 	if rl.CheckCollisionPointRec(pos, rect) {
 		outlineColor = style.HoverOutlineColor
 		fillColor = style.HoverFillColor
-		if MouseDown(rl.MouseLeftButton) {
+		if MouseDown(int32(rl.MouseLeftButton)) {
 			outlineColor = style.PressedOutlineColor
 			fillColor = style.PressedFillColor
 		}
@@ -236,7 +236,7 @@ func imButton(rect rl.Rectangle, text string, style ButtonStyle) bool {
 	if worldGUI {
 		textWidth = rl.MeasureTextEx(font, text, float32(programSettings.FontSize), spacing)
 	}
-	pos = rl.Vector2{rect.X + (rect.Width / 2) - textWidth.X/2 + (iconDstRec.Width / 4), rect.Y + (rect.Height / 2) - textWidth.Y/2}
+	pos = rl.Vector2{X: rect.X + (rect.Width / 2) - textWidth.X/2 + (iconDstRec.Width / 4), Y: rect.Y + (rect.Height / 2) - textWidth.Y/2}
 	pos.X = float32(math.Round(float64(pos.X)))
 	pos.Y = float32(math.Round(float64(pos.Y)))
 
@@ -244,7 +244,7 @@ func imButton(rect rl.Rectangle, text string, style ButtonStyle) bool {
 		currentProject.GUI_Icons,
 		style.IconSrcRec,
 		iconDstRec,
-		rl.Vector2{iconDstRec.Width / 2, iconDstRec.Height / 2},
+		rl.Vector2{X: iconDstRec.Width / 2, Y: iconDstRec.Height / 2},
 		style.IconRotation,
 		style.IconColor)
 
@@ -256,6 +256,8 @@ func imButton(rect rl.Rectangle, text string, style ButtonStyle) bool {
 
 	if clicked && prioritizedGUIElement != nil {
 		clicked = false
+	} else if clicked {
+		ConsumeMouseInput(int32(rl.MouseLeftButton)) // Consume left mouse button input
 	}
 
 	return clicked
@@ -339,7 +341,7 @@ func (button *Button) SetFocused(focused bool) {
 
 func (button *Button) Update() {
 
-	if prioritizedGUIElement == nil && MousePressed(rl.MouseLeftButton) {
+	if prioritizedGUIElement == nil && MousePressed(int32(rl.MouseLeftButton)) {
 		button.focused = rl.CheckCollisionPointRec(GetMousePosition(), button.Rect)
 	}
 
@@ -406,7 +408,7 @@ func (bg *ButtonGroup) Update() {
 
 	bg.Changed = false
 
-	if MousePressed(rl.MouseLeftButton) {
+	if MousePressed(int32(rl.MouseLeftButton)) {
 		bg.focused = rl.CheckCollisionPointRec(GetMousePosition(), bg.Rect)
 	}
 
@@ -827,7 +829,7 @@ func (panel *Panel) Update() {
 	resizeCorner.X = panel.Rect.X + panel.OriginalWidth - resizeCorner.Width
 	resizeCorner.Y = panel.Rect.Y + panel.OriginalHeight - resizeCorner.Height
 
-	if panel.Resizeable && MousePressed(rl.MouseLeftButton) && rl.CheckCollisionPointRec(GetMousePosition(), resizeCorner) {
+	if panel.Resizeable && MousePressed(int32(rl.MouseLeftButton)) && rl.CheckCollisionPointRec(GetMousePosition(), resizeCorner) {
 		panel.Resizing = true
 		panel.ResizeDragStart = rl.Vector2Subtract(GetMousePosition(), rl.Vector2{panel.Rect.X, panel.Rect.Y})
 	}
@@ -850,14 +852,14 @@ func (panel *Panel) Update() {
 		if panel.OriginalHeight < panel.MinimumHeight {
 			panel.OriginalHeight = panel.MinimumHeight
 		} else if panel.Rect.Y+panel.OriginalHeight > winSize.Y {
-			panel.OriginalHeight = winSize.Y - panel.Rect.Y
+			panel.OriginalHeight = winSize.Y - panel.OriginalHeight
 		}
 
 	}
 
-	if prioritizedGUIElement == nil && ((MousePressed(rl.MouseLeftButton) && !rl.CheckCollisionPointRec(GetMousePosition(), dst)) || rl.IsKeyPressed(rl.KeyEscape)) {
+	if prioritizedGUIElement == nil && ((MousePressed(int32(rl.MouseLeftButton)) && !rl.CheckCollisionPointRec(GetMousePosition(), dst)) || rl.IsKeyPressed(rl.KeyEscape)) {
 		panel.Exited = true
-		ConsumeMouseInput(rl.MouseLeftButton)
+		ConsumeMouseInput(int32(rl.MouseLeftButton))
 	}
 
 	// Draggable Panel
@@ -866,7 +868,7 @@ func (panel *Panel) Update() {
 	topBar.Height = exitButtonSize * 0.5
 	topBar.Width -= exitButtonSize
 
-	if MousePressed(rl.MouseLeftButton) && rl.CheckCollisionPointRec(GetMousePosition(), topBar) {
+	if MousePressed(int32(rl.MouseLeftButton)) && rl.CheckCollisionPointRec(GetMousePosition(), topBar) {
 		panel.DragStart = rl.Vector2Subtract(GetMousePosition(), rl.Vector2{panel.Rect.X, panel.Rect.Y})
 	}
 
@@ -877,7 +879,7 @@ func (panel *Panel) Update() {
 		if panel.DragStart.X >= 0 && panel.DragStart.Y >= 0 {
 			panel.Rect.X = GetMousePosition().X - panel.DragStart.X
 			panel.Rect.Y = GetMousePosition().Y - panel.DragStart.Y
-			HideMouseInput(rl.MouseLeftButton)
+			HideMouseInput(int32(rl.MouseLeftButton))
 		}
 
 		if panel.OriginalWidth > winSize.X {
@@ -1253,18 +1255,18 @@ func (panel *Panel) Update() {
 
 	if quitButton {
 		panel.Exited = true
-		ConsumeMouseInput(rl.MouseLeftButton)
+		ConsumeMouseInput(int32(rl.MouseLeftButton))
 	}
 
 	if rl.IsMouseButtonReleased(rl.MouseLeftButton) {
 		panel.DragStart = rl.Vector2{-1, -1}
 		panel.Resizing = false
-		UnhideMouseInput(rl.MouseLeftButton)
+		UnhideMouseInput(int32(rl.MouseLeftButton))
 	}
 
 	rl.DrawRectangleRec(topBar, getThemeColor(GUI_OUTLINE_HIGHLIGHTED))
 
-	rl.DrawRectangleLinesEx(rl.Rectangle{panel.Rect.X, panel.Rect.Y, panel.OriginalWidth, panel.OriginalHeight}, 1, getThemeColor(GUI_OUTLINE))
+	rl.DrawRectangleLinesEx(rl.Rectangle{X: panel.Rect.X, Y: panel.Rect.Y, Width: panel.OriginalWidth, Height: panel.OriginalHeight}, 1, getThemeColor(GUI_OUTLINE))
 
 	panel.PrevWindowSize = winSize
 
@@ -1464,7 +1466,7 @@ func (scrollBar *Scrollbar) Draw() {
 		scrollBox.Y = scrollBar.Rect.Y + scrollBar.Rect.Height - scrollBox.Height
 	}
 
-	if MouseDown(rl.MouseLeftButton) && rl.CheckCollisionPointRec(GetMousePosition(), scrollBar.Rect) && !scrollBar.Locked {
+	if MouseDown(int32(rl.MouseLeftButton)) && rl.CheckCollisionPointRec(GetMousePosition(), scrollBar.Rect) && !scrollBar.Locked {
 		scrollBar.TargetScroll = ease.Linear(
 			GetMousePosition().Y-scrollBar.Rect.Y-(scrollBox.Height/2),
 			0,
@@ -1557,13 +1559,13 @@ func (drag *DraggableElement) Draw() {
 
 	mp := GetMousePosition()
 
-	if rl.CheckCollisionPointRec(mp, handleRect) && MousePressed(rl.MouseLeftButton) && prioritizedGUIElement == nil {
+	if rl.CheckCollisionPointRec(mp, handleRect) && MousePressed(int32(rl.MouseLeftButton)) && prioritizedGUIElement == nil {
 		drag.Dragging = true
 		drag.DragStart = mp
 		prioritizedGUIElement = drag
 	}
 
-	if MouseReleased(rl.MouseLeftButton) && drag.Dragging {
+	if MouseReleased(int32(rl.MouseLeftButton)) && drag.Dragging {
 
 		drag.Dragging = false
 
@@ -1678,11 +1680,11 @@ func (dropdown *DropdownMenu) Update() {
 		outlineColor = getThemeColor(GUI_OUTLINE_HIGHLIGHTED)
 		insideColor = getThemeColor(GUI_INSIDE_HIGHLIGHTED)
 		arrowColor = getThemeColor(GUI_OUTLINE_HIGHLIGHTED)
-		if MouseDown(rl.MouseLeftButton) {
+		if MouseDown(int32(rl.MouseLeftButton)) {
 			outlineColor = getThemeColor(GUI_OUTLINE_DISABLED)
 			insideColor = getThemeColor(GUI_INSIDE_DISABLED)
 			arrowColor = getThemeColor(GUI_OUTLINE_DISABLED)
-		} else if MouseReleased(rl.MouseLeftButton) {
+		} else if MouseReleased(int32(rl.MouseLeftButton)) {
 			dropdown.Open = !dropdown.Open
 			dropdown.Clicked = true
 		}
@@ -1772,7 +1774,7 @@ func (checkbox *Checkbox) Update() {
 
 	if prioritizedGUIElement == nil {
 
-		if MousePressed(rl.MouseLeftButton) {
+		if MousePressed(int32(rl.MouseLeftButton)) {
 			checkbox.focused = rl.CheckCollisionPointRec(GetMousePosition(), checkbox.Rect)
 		}
 
@@ -1808,10 +1810,10 @@ func (checkbox *Checkbox) Draw() {
 
 	if rl.CheckCollisionPointRec(pos, checkbox.Rect) && prioritizedGUIElement == nil {
 		color = getThemeColor(GUI_FONT_COLOR)
-		if MousePressed(rl.MouseLeftButton) {
+		if MousePressed(int32(rl.MouseLeftButton)) {
 			checkbox.Checked = !checkbox.Checked
 			checkbox.Changed = true
-			ConsumeMouseInput(rl.MouseLeftButton)
+			ConsumeMouseInput(int32(rl.MouseLeftButton)) // Consume left mouse button input
 		}
 	}
 
@@ -1864,7 +1866,7 @@ func (spinner *Spinner) Update() {
 
 	spinner.Changed = false
 
-	if MousePressed(rl.MouseLeftButton) {
+	if MousePressed(int32(rl.MouseLeftButton)) {
 		spinner.focused = rl.CheckCollisionPointRec(GetMousePosition(), spinner.Rect)
 	}
 
@@ -1918,7 +1920,7 @@ func (spinner *Spinner) Draw() {
 	rect.Width -= spinner.Rect.Height * 2
 
 	if ImmediateButton(rect, spinner.ChoiceAsString(), false) {
-		ConsumeMouseInput(rl.MouseLeftButton)
+		ConsumeMouseInput(int32(rl.MouseLeftButton)) // Consume left mouse button input
 		spinner.Expanded = !spinner.Expanded
 		clickedSpinner = true
 		spinner.focused = true
@@ -1950,7 +1952,7 @@ func (spinner *Spinner) Draw() {
 			}
 
 			if ImmediateButton(rect, choice, disabled) {
-				ConsumeMouseInput(rl.MouseLeftButton)
+				ConsumeMouseInput(int32(rl.MouseLeftButton)) // Consume left mouse button input
 				spinner.CurrentChoice = i
 				spinner.Expanded = false
 				spinner.Changed = true
@@ -1963,9 +1965,9 @@ func (spinner *Spinner) Draw() {
 
 	}
 
-	if MouseReleased(rl.MouseLeftButton) && !clickedSpinner {
+	if MouseReleased(int32(rl.MouseLeftButton)) && !clickedSpinner {
 		if spinner.Expanded {
-			ConsumeMouseInput(rl.MouseLeftButton)
+			ConsumeMouseInput(int32(rl.MouseLeftButton)) // Consume left mouse button input
 		}
 		spinner.Expanded = false
 	}
@@ -2468,7 +2470,7 @@ func (textbox *Textbox) Update() {
 		mousePos = GetMousePosition()
 	}
 
-	if MousePressed(rl.MouseLeftButton) {
+	if MousePressed(int32(rl.MouseLeftButton)) {
 		if rl.CheckCollisionPointRec(mousePos, textbox.Rect) && prioritizedGUIElement == nil {
 			textbox.focused = true
 		} else {
@@ -2547,7 +2549,7 @@ func (textbox *Textbox) Update() {
 
 		}
 
-		if MousePressed(rl.MouseLeftButton) {
+		if MousePressed(int32(rl.MouseLeftButton)) {
 			textbox.CaretPos = textbox.ClosestPointInText(mousePos)
 			if !shift {
 				textbox.ClearSelection()
@@ -2556,7 +2558,7 @@ func (textbox *Textbox) Update() {
 				textbox.SelectionStart = textbox.CaretPos
 			}
 		}
-		if MouseDown(rl.MouseLeftButton) {
+		if MouseDown(int32(rl.MouseLeftButton)) {
 			textbox.SelectedRange[0] = textbox.SelectionStart
 			textbox.CaretPos = textbox.ClosestPointInText(mousePos)
 			textbox.SelectedRange[1] = textbox.CaretPos
@@ -2708,6 +2710,7 @@ func (textbox *Textbox) Update() {
 
 		if shift {
 			textbox.SelectedRange[0] = textbox.SelectionStart
+			textbox.CaretPos = textbox.ClosestPointInText(mousePos)
 			textbox.SelectedRange[1] = textbox.CaretPos
 		}
 
@@ -3021,8 +3024,6 @@ func (textbox *Textbox) RedrawText() {
 	rl.BeginTextureMode(textbox.Buffer)
 
 	rl.ClearBackground(rl.Color{0, 0, 0, 0})
-
-	// We draw white because this gets tinted later when drawing the texture.
 
 	DrawGUITextColored(tbpos, rl.White, txt)
 

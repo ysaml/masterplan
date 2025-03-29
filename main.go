@@ -110,7 +110,7 @@ func main() {
 		}
 	}()
 
-	rl.SetTraceLog(rl.LogError)
+	rl.SetTraceLogLevel(rl.LogError)
 
 	settingsLoaded := programSettings.Load()
 
@@ -128,7 +128,7 @@ func main() {
 		demoMode = " " + demoMode
 	}
 
-	rl.SetConfigFlags(windowFlags)
+	rl.SetConfigFlags(uint32(windowFlags))
 
 	// We initialize the window using just "MasterPlan" as the title because WM_CLASS is set from this on Linux
 	rl.InitWindow(960, 540, "MasterPlan")
